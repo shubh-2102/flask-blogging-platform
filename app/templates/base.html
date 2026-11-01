@@ -24,11 +24,22 @@
         <ul class="nav-links">
           <li><a href="{{ url_for('main.index') }}" class="nav-link">Home</a></li>
           <li><a href="{{ url_for('posts.list_posts') }}" class="nav-link">Articles</a></li>
-          <li><a href="{{ url_for('main.about') }}" class="nav-link">About Project</a></li>
-          
+          <li><a href="{{ url_for('main.about') }}" class="nav-link">About</a></li>
+
           {% if current_user.is_authenticated %}
-            <li><a href="#" class="nav-link">Hi, {{ current_user.username }}</a></li>
-            <li><a href="{{ url_for('auth.logout') }}" class="btn btn-outline">Log Out</a></li>
+            <li class="nav-dropdown">
+              <button class="nav-user-btn" onclick="this.parentElement.classList.toggle('open')">
+                <div class="nav-avatar">{{ current_user.username[0].upper() }}</div>
+                <span>{{ current_user.username }}</span>
+                <span class="dropdown-caret">▾</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="{{ url_for('auth.profile', username=current_user.username) }}" class="dropdown-item">👤 My Profile</a></li>
+                <li><a href="{{ url_for('auth.edit_profile') }}" class="dropdown-item">🖊️ Edit Profile</a></li>
+                <li class="dropdown-divider"></li>
+                <li><a href="{{ url_for('auth.logout') }}" class="dropdown-item dropdown-item-danger">🚪 Log Out</a></li>
+              </ul>
+            </li>
           {% else %}
             <li><a href="{{ url_for('auth.login') }}" class="nav-link">Log In</a></li>
             <li><a href="{{ url_for('auth.register') }}" class="btn btn-primary">Sign Up</a></li>
@@ -43,9 +54,7 @@
     {% if messages %}
       <div class="flash-container">
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            {{ message }}
-          </div>
+          <div class="alert alert-{{ category }}">{{ message }}</div>
         {% endfor %}
       </div>
     {% endif %}
@@ -60,6 +69,15 @@
   <footer class="footer">
     <p>Flask Blogging Platform &bull; Built for DIY Internship &bull; Powered by Flask, SQLAlchemy & Blueprints</p>
   </footer>
+
+  <script>
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      document.querySelectorAll('.nav-dropdown.open').forEach(function(el) {
+        if (!el.contains(e.target)) el.classList.remove('open');
+      });
+    });
+  </script>
 
   {% block extra_js %}{% endblock %}
 </body>

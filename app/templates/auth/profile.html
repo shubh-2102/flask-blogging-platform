@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }}'s Profile | Flask Blog{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+
+  <!-- Profile Header Card -->
+  <div class="profile-header-card card">
+    <div class="profile-avatar">
+      {% if user.avatar_url %}
+        <img src="{{ user.avatar_url }}" alt="{{ user.username }}" class="avatar-img">
+      {% else %}
+        <div class="avatar-placeholder">{{ user.username[0].upper() }}</div>
+      {% endif %}
+    </div>
+
+    <div class="profile-info">
+      <h1 class="profile-username">{{ user.username }}</h1>
+      <p class="profile-email">{{ user.email }}</p>
+      {% if user.bio %}
+        <p class="profile-bio">{{ user.bio }}</p>
+      {% else %}
+        <p class="profile-bio" style="color: var(--text-muted); font-style: italic;">No bio yet.</p>
+      {% endif %}
+
+      <div class="profile-meta">
+        <span class="profile-meta-item">
+          <strong>{{ posts|length }}</strong> article{{ 's' if posts|length != 1 }}
+        </span>
+        <span class="profile-meta-divider">·</span>
+        <span class="profile-meta-item">
+          Joined {{ user.created_at.strftime('%B %Y') }}
+        </span>
+      </div>
+
+      {% if current_user.is_authenticated and current_user.id == user.id %}
+        <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline" style="margin-top: 1rem;">Edit Profile</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Posts by this author -->
+  <div style="margin-top: 2rem;">
+    <div class="section-header">
+      <h2 class="section-title">Published Articles</h2>
+    </div>
+
+    {% if posts %}
+      <div class="grid-cols-3">
+        {% for post in posts %}
+          <article class="card">
+            {% if post.category %}
+              <span class="card-tag">{{ post.category.name }}</span>
+            {% endif %}
+            <h3 class="card-title">
+              <a href="{{ url_for('posts.view_post', slug=post.slug) }}">{{ post.title }}</a>
+            </h3>
+            <p class="card-text">{{ post.summary or (post.content | striptags)[:130] }}...</p>
+            <time style="font-size: 0.82rem; color: var(--text-muted);">{{ post.created_at.strftime('%b %d, %Y') }}</time>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="text-align:center; padding: 2.5rem;">
+        <p class="card-text">No published articles yet.</p>
+        {% if current_user.is_authenticated and current_user.id == user.id %}
+          <a href="#" class="btn btn-primary" style="margin-top: 0.75rem;">Write Your First Post</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

@@ -1,32 +1,53 @@
 {% extends "base.html" %}
-
-{% block title %}Register | Flask Blogging Platform{% endblock %}
+{% block title %}{{ title }} | Flask Blog{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 480px; margin: 3rem auto; padding: 2.5rem;">
-  <span class="card-tag">Authentication (Week 2 Preview)</span>
-  <h2 class="card-title" style="font-size: 1.6rem; margin-top: 0.5rem;">Create Your Account</h2>
-  <p class="card-text">Join the blogging platform to write, read, and comment.</p>
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="auth-icon">✍️</div>
+    <h1 class="auth-title">Create Your Account</h1>
+    <p class="auth-subtitle">Join thousands of writers sharing their ideas.</p>
+  </div>
 
-  <form method="POST" action="{{ url_for('auth.register') }}" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div>
-      <label style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.35rem;">Username</label>
-      <input type="text" name="username" required placeholder="johndoe" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem;">
+  <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-group {{ 'has-error' if form.username.errors }}">
+      {{ form.username.label(class='form-label') }}
+      {{ form.username(class='form-input', placeholder='e.g. johndoe', autocomplete='username') }}
+      {% for error in form.username.errors %}
+        <span class="form-error">{{ error }}</span>
+      {% endfor %}
     </div>
-    <div>
-      <label style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.35rem;">Email Address</label>
-      <input type="email" name="email" required placeholder="you@example.com" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem;">
+
+    <div class="form-group {{ 'has-error' if form.email.errors }}">
+      {{ form.email.label(class='form-label') }}
+      {{ form.email(class='form-input', placeholder='you@example.com', autocomplete='email') }}
+      {% for error in form.email.errors %}
+        <span class="form-error">{{ error }}</span>
+      {% endfor %}
     </div>
-    <div>
-      <label style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.35rem;">Password</label>
-      <input type="password" name="password" required placeholder="Create a strong password" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem;">
+
+    <div class="form-group {{ 'has-error' if form.password.errors }}">
+      {{ form.password.label(class='form-label') }}
+      {{ form.password(class='form-input', placeholder='Minimum 8 characters', autocomplete='new-password') }}
+      {% for error in form.password.errors %}
+        <span class="form-error">{{ error }}</span>
+      {% endfor %}
+      <span class="form-hint">Must be at least 8 characters long.</span>
     </div>
-    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; width: 100%;">Create Account</button>
+
+    <div class="form-group {{ 'has-error' if form.confirm.errors }}">
+      {{ form.confirm.label(class='form-label') }}
+      {{ form.confirm(class='form-input', placeholder='Re-enter your password', autocomplete='new-password') }}
+      {% for error in form.confirm.errors %}
+        <span class="form-error">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-full">{{ form.submit.label.text }}</button>
   </form>
 
-  <p style="text-align: center; margin-top: 1.5rem; font-size: 0.88rem; color: var(--text-muted);">
-    Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
-  </p>
+  <p class="auth-footer-text">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
 </div>
 {% endblock %}
