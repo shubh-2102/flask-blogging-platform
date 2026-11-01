@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} | Flask Blogging Platform{% endblock %}
+
+{% block content %}
+<article class="card" style="max-width: 850px; margin: 0 auto; padding: 2.5rem;">
+  {% if post.category %}
+    <span class="card-tag">{{ post.category.name }}</span>
+  {% endif %}
+  <h1 class="hero-title" style="color: var(--dark); font-size: 2.2rem; margin-top: 0.5rem;">{{ post.title }}</h1>
+  
+  <div style="display: flex; gap: 1rem; align-items: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+    <span>By <strong>{{ post.author.username }}</strong></span>
+    <span>&bull;</span>
+    <time>{{ post.created_at.strftime('%B %d, %Y') }}</time>
+  </div>
+
+  <div class="post-body" style="font-size: 1.05rem; line-height: 1.8; color: var(--text-main);">
+    {{ post.content | safe }}
+  </div>
+
+  {% if post.tags %}
+    <div style="display: flex; gap: 0.5rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+      {% for tag in post.tags %}
+        <span class="badge-status" style="background: var(--bg-page); color: var(--text-muted);">#{{ tag.name }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+</article>
+{% endblock %}

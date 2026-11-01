@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}About | Flask Blogging Platform{% endblock %}
+
+{% block content %}
+<section class="card" style="max-width: 800px; margin: 0 auto; padding: 2.5rem;">
+  <span class="card-tag">Project Documentation</span>
+  <h1 class="hero-title" style="color: var(--dark); margin-top: 0.5rem; font-size: 2rem;">About the Flask Blogging Platform</h1>
+  
+  <p class="card-text" style="font-size: 1.05rem; line-height: 1.8;">
+    This project is developed as part of the <strong>DIY Internship Program</strong>. The objective is to build a full-featured blogging web application that empowers users to register, write and publish rich-text articles, explore topics by categories, and interact via comments.
+  </p>
+
+  <hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;">
+
+  <h2 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--dark);">Technologies & Tools</h2>
+  <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 2rem;">
+    <span class="card-tag">Python 3.14</span>
+    <span class="card-tag">Flask 3.x</span>
+    <span class="card-tag">SQLAlchemy</span>
+    <span class="card-tag">Flask-Migrate</span>
+    <span class="card-tag">Flask-Login</span>
+    <span class="card-tag">Flask-WTF</span>
+    <span class="card-tag">Jinja2</span>
+    <span class="card-tag">SQLite</span>
+  </div>
+
+  <h2 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--dark);">Internship Roadmap</h2>
+  <ul class="status-list" style="margin-top: 0.5rem;">
+    <li class="status-item"><span class="badge-status badge-success">Week 1</span> Flask setup, application factory, Blueprints, SQLAlchemy models & migrations.</li>
+    <li class="status-item"><span class="badge-status badge-pending">Week 2</span> User registration, login/logout sessions, authentication forms with CSRF validation.</li>
+    <li class="status-item"><span class="badge-status badge-pending">Week 3</span> Blog post CRUD operations, rich text editor, category/tag tagging.</li>
+    <li class="status-item"><span class="badge-status badge-pending">Week 4</span> Interactive commenting, search/filter capabilities, final polish & deployment.</li>
+  </ul>
+</section>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Flask Blogging Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-card">
+  <span class="hero-pill">Week 1 Milestone Completed</span>
+  <h1 class="hero-title">Welcome to the Flask Blogging Platform</h1>
+  <p class="hero-subtitle">
+    A robust, production-ready web application built using Python, Flask Blueprints, SQLAlchemy ORM, and modern responsive design.
+  </p>
+  <div class="hero-actions">
+    <a href="{{ url_for('posts.list_posts') }}" class="btn btn-light">Browse Articles</a>
+    <a href="{{ url_for('main.about') }}" class="btn btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.4);">Architecture & Details</a>
+  </div>
+</section>
+
+<!-- Week 1 Status Overview -->
+<div class="status-box">
+  <div class="section-header">
+    <h2 class="section-title">🚀 Week 1: Environment & Basic Structure</h2>
+    <span class="badge-status badge-success">✓ Verified & Ready</span>
+  </div>
+  <p class="card-text">
+    The Week 1 foundation establishes the Application Factory pattern, modular Blueprints, database schemas with SQLAlchemy, and Flask-Migrate integration.
+  </p>
+  <ul class="status-list">
+    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Flask Environment:</strong> Python 3.14 virtual environment with dependencies managed via <code>requirements.txt</code>.</li>
+    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Application Factory:</strong> Configured in <code>app/__init__.py</code> with environment-based configuration classes.</li>
+    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Blueprints:</strong> Modular routes registered for <code>main</code>, <code>auth</code>, and <code>posts</code>.</li>
+    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Database Models:</strong> ORM schemas created for <code>User</code>, <code>Post</code>, <code>Category</code>, <code>Tag</code>, and <code>Comment</code>.</li>
+    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Database Migrations:</strong> Managed with <code>Flask-Migrate</code> and <code>Alembic</code>.</li>
+  </ul>
+</div>
+
+<!-- Key Architecture Highlights -->
+<div class="section-header">
+  <h2 class="section-title">Core Architecture Components</h2>
+</div>
+
+<div class="grid-cols-3">
+  <div class="card">
+    <span class="card-tag">Architecture</span>
+    <h3 class="card-title">Blueprints Pattern</h3>
+    <p class="card-text">
+      Decoupled modules for authentication, blog management, and general application routing for clean scalability.
+    </p>
+  </div>
+
+  <div class="card">
+    <span class="card-tag">Database</span>
+    <h3 class="card-title">SQLAlchemy ORM</h3>
+    <p class="card-text">
+      Fully relational data model with Many-to-Many post tagging, One-to-Many authorship, and cascade comment deletions.
+    </p>
+  </div>
+
+  <div class="card">
+    <span class="card-tag">Templates</span>
+    <h3 class="card-title">Jinja2 Layouts</h3>
+    <p class="card-text">
+      Component-based template hierarchy with extensible blocks, flash notification handling, and responsive CSS.
+    </p>
+  </div>
+</div>
+{% endblock %}

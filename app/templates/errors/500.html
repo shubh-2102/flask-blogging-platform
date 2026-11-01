@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Internal Server Error - 500{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; max-width: 600px; margin: 3rem auto; padding: 3rem 2rem;">
+  <h1 style="font-size: 4rem; font-weight: 800; color: #dc2626;">500</h1>
+  <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Internal Server Error</h2>
+  <p class="card-text">Something went wrong on our end. Please try again later.</p>
+  <a href="{{ url_for('main.index') }}" class="btn btn-primary" style="margin-top: 1rem;">Return Home</a>
+</div>
+{% endblock %}

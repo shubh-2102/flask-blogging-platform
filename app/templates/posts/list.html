@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}All Articles | Flask Blogging Platform{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Published Articles</h1>
+    <p class="card-text">Explore insightful blogs, tutorials, and discussions.</p>
+  </div>
+</div>
+
+{% if posts %}
+  <div class="grid-cols-3">
+    {% for post in posts %}
+      <article class="card">
+        {% if post.category %}
+          <span class="card-tag">{{ post.category.name }}</span>
+        {% endif %}
+        <h2 class="card-title">
+          <a href="{{ url_for('posts.view_post', slug=post.slug) }}">{{ post.title }}</a>
+        </h2>
+        <p class="card-text">{{ post.summary or (post.content[:140] + '...') }}</p>
+        <div style="font-size: 0.82rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <span>By {{ post.author.username }}</span>
+          <time datetime="{{ post.created_at }}">{{ post.created_at.strftime('%b %d, %Y') }}</time>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--dark);">No Posts Published Yet</h3>
+    <p class="card-text">Posts CRUD and the Rich Text Editor will be implemented in Week 3.</p>
+  </div>
+{% endif %}
+{% endblock %}
