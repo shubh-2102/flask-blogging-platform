@@ -34,7 +34,7 @@ class Week1TestCase(unittest.TestCase):
     def test_posts_page(self):
         response = self.client.get('/posts/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Published Articles', response.data)
+        self.assertIn(b'All Articles', response.data)
 
     def test_404_page(self):
         response = self.client.get('/nonexistent-page')

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}New Post | Flask Blog{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+  .ql-editor { min-height: 320px; font-size: 1rem; font-family: var(--font-sans); }
+  .ql-toolbar { border-radius: var(--radius-sm) var(--radius-sm) 0 0; border-color: var(--border) !important; }
+  .ql-container { border-radius: 0 0 var(--radius-sm) var(--radius-sm); border-color: var(--border) !important; font-size: 1rem; }
+  .editor-wrapper.has-error .ql-toolbar,
+  .editor-wrapper.has-error .ql-container { border-color: #ef4444 !important; background: #fff8f8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="editor-page">
+  <div class="editor-header">
+    <h1 class="section-title">✏️ Write a New Post</h1>
+    <a href="{{ url_for('posts.list_posts') }}" class="btn btn-outline">← Back</a>
+  </div>
+
+  <form method="POST" action="{{ url_for('posts.create_post') }}" id="postForm" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="editor-grid">
+      <!-- Left: Main Content -->
+      <div class="editor-main">
+        <div class="form-group {{ 'has-error' if form.title.errors }}">
+          {{ form.title.label(class='form-label') }}
+          {{ form.title(class='form-input', id='titleInput', placeholder='Your post title...', autocomplete='off') }}
+          {% for e in form.title.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="form-group {{ 'has-error' if form.content.errors }}">
+          <label class="form-label">Content</label>
+          <div class="editor-wrapper {{ 'has-error' if form.content.errors }}" id="editorWrapper">
+            <div id="quillEditor"></div>
+          </div>
+          {{ form.content(id='contentInput', style='display:none;') }}
+          {% for e in form.content.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="form-group {{ 'has-error' if form.summary.errors }}">
+          {{ form.summary.label(class='form-label') }}
+          {{ form.summary(class='form-input', rows=3, placeholder='Brief excerpt shown in post listings... (optional)') }}
+          <span class="form-hint">Max 300 characters. Leave blank to auto-generate from content.</span>
+          {% for e in form.summary.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <!-- Right: Metadata Sidebar -->
+      <div class="editor-sidebar">
+        <div class="editor-sidebar-card">
+          <h3 class="editor-sidebar-title">Publish</h3>
+          <div class="form-check" style="margin-bottom: 1rem;">
+            {{ form.published(id='published') }}
+            <label for="published" class="form-check-label">Publish immediately</label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">💾 Save Post</button>
+        </div>
+
+        <div class="editor-sidebar-card">
+          <h3 class="editor-sidebar-title">Category</h3>
+          <div class="form-group">
+            {{ form.category_id(class='form-input') }}
+          </div>
+        </div>
+
+        <div class="editor-sidebar-card">
+          <h3 class="editor-sidebar-title">Tags</h3>
+          <div class="form-group {{ 'has-error' if form.tags.errors }}">
+            {{ form.tags(class='form-input', id='tagsInput', placeholder='Flask, Python, Web Dev') }}
+            <span class="form-hint">Comma-separated tags</span>
+            {% for e in form.tags.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+          </div>
+        </div>
+
+        <div class="editor-sidebar-card">
+          <h3 class="editor-sidebar-title">URL Slug</h3>
+          <div class="form-group {{ 'has-error' if form.slug.errors }}">
+            {{ form.slug(class='form-input', id='slugInput', placeholder='auto-generated-from-title') }}
+            <span class="form-hint">Leave blank to auto-generate</span>
+            {% for e in form.slug.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+  const quill = new Quill('#quillEditor', {
+    theme: 'snow',
+    placeholder: 'Start writing your post...',
+    modules: {
+      toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        ['blockquote', 'code-block'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link', 'image'],
+        ['clean']
+      ]
+    }
+  });
+
+  // Sync Quill content to hidden input before form submit
+  document.getElementById('postForm').addEventListener('submit', function() {
+    document.getElementById('contentInput').value = quill.root.innerHTML;
+  });
+
+  // Auto-slug from title
+  document.getElementById('titleInput').addEventListener('input', function() {
+    const slug = this.value.toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .trim()
+      .replace(/[\s_-]+/g, '-');
+    const slugField = document.getElementById('slugInput');
+    if (!slugField._manuallyEdited) slugField.value = slug;
+  });
+
+  document.getElementById('slugInput').addEventListener('input', function() {
+    this._manuallyEdited = this.value.length > 0;
+  });
+</script>
+{% endblock %}

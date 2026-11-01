@@ -1,37 +1,120 @@
 {% extends "base.html" %}
-
-{% block title %}All Articles | Flask Blogging Platform{% endblock %}
+{% block title %}All Articles | Flask Blog{% endblock %}
 
 {% block content %}
-<div class="section-header">
-  <div>
-    <h1 class="section-title">Published Articles</h1>
-    <p class="card-text">Explore insightful blogs, tutorials, and discussions.</p>
+<div class="list-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h3 class="sidebar-title">Categories</h3>
+      <ul class="sidebar-list">
+        <li>
+          <a href="{{ url_for('posts.list_posts') }}" class="sidebar-link {{ 'active' if not active_category }}">
+            All Posts
+          </a>
+        </li>
+        {% for cat in categories %}
+        <li>
+          <a href="{{ url_for('posts.list_posts', category=cat.slug) }}"
+             class="sidebar-link {{ 'active' if active_category and active_category.id == cat.id }}">
+            {{ cat.name }}
+            <span class="sidebar-count">{{ cat.posts.filter_by(published=True).count() }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {% if tags %}
+    <div class="sidebar-section">
+      <h3 class="sidebar-title">Tags</h3>
+      <div class="tag-cloud">
+        {% for tag in tags %}
+          <a href="{{ url_for('posts.list_posts', tag=tag.slug) }}"
+             class="tag-pill {{ 'tag-pill-active' if active_tag and active_tag.id == tag.id }}">
+            #{{ tag.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+    <div class="sidebar-section">
+      <a href="{{ url_for('posts.create_post') }}" class="btn btn-primary btn-full">✏️ Write a Post</a>
+    </div>
+    {% endif %}
+  </aside>
+
+  <!-- Main Content -->
+  <div class="posts-main">
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">
+          {% if active_category %}{{ active_category.name }}
+          {% elif active_tag %}#{{ active_tag.name }}
+          {% else %}All Articles{% endif %}
+        </h1>
+        <p class="card-text">{{ posts.total }} post{{ 's' if posts.total != 1 }} found</p>
+      </div>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('posts.create_post') }}" class="btn btn-primary">✏️ New Post</a>
+      {% endif %}
+    </div>
+
+    {% if posts.items %}
+      <div class="grid-cols-3">
+        {% for post in posts.items %}
+          <article class="card post-card">
+            {% if post.category %}
+              <a href="{{ url_for('posts.list_posts', category=post.category.slug) }}" class="card-tag">{{ post.category.name }}</a>
+            {% endif %}
+            <h2 class="card-title">
+              <a href="{{ url_for('posts.view_post', slug=post.slug) }}">{{ post.title }}</a>
+            </h2>
+            <p class="card-text">{{ post.summary or (post.content | striptags)[:130] }}{% if not post.summary %}...{% endif %}</p>
+            <div class="post-card-footer">
+              <a href="{{ url_for('auth.profile', username=post.author.username) }}" class="post-author">
+                <div class="post-author-avatar">{{ post.author.username[0].upper() }}</div>
+                <span>{{ post.author.username }}</span>
+              </a>
+              <time>{{ post.created_at.strftime('%b %d, %Y') }}</time>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if posts.pages > 1 %}
+      <div class="pagination">
+        {% if posts.has_prev %}
+          <a href="{{ url_for('posts.list_posts', page=posts.prev_num, category=active_category.slug if active_category else None, tag=active_tag.slug if active_tag else None) }}" class="page-btn">← Prev</a>
+        {% endif %}
+        {% for p in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if p %}
+            <a href="{{ url_for('posts.list_posts', page=p, category=active_category.slug if active_category else None, tag=active_tag.slug if active_tag else None) }}"
+               class="page-btn {{ 'page-btn-active' if p == posts.page }}">{{ p }}</a>
+          {% else %}
+            <span class="page-ellipsis">…</span>
+          {% endif %}
+        {% endfor %}
+        {% if posts.has_next %}
+          <a href="{{ url_for('posts.list_posts', page=posts.next_num, category=active_category.slug if active_category else None, tag=active_tag.slug if active_tag else None) }}" class="page-btn">Next →</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    {% else %}
+      <div class="card" style="text-align:center; padding: 3rem 1.5rem;">
+        <p style="font-size: 2.5rem; margin-bottom: 0.75rem;">📝</p>
+        <h3 style="margin-bottom: 0.5rem;">No posts found</h3>
+        <p class="card-text">Be the first to write one!</p>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('posts.create_post') }}" class="btn btn-primary" style="margin-top:1rem;">Write a Post</a>
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 </div>
-
-{% if posts %}
-  <div class="grid-cols-3">
-    {% for post in posts %}
-      <article class="card">
-        {% if post.category %}
-          <span class="card-tag">{{ post.category.name }}</span>
-        {% endif %}
-        <h2 class="card-title">
-          <a href="{{ url_for('posts.view_post', slug=post.slug) }}">{{ post.title }}</a>
-        </h2>
-        <p class="card-text">{{ post.summary or (post.content[:140] + '...') }}</p>
-        <div style="font-size: 0.82rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-          <span>By {{ post.author.username }}</span>
-          <time datetime="{{ post.created_at }}">{{ post.created_at.strftime('%b %d, %Y') }}</time>
-        </div>
-      </article>
-    {% endfor %}
-  </div>
-{% else %}
-  <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
-    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--dark);">No Posts Published Yet</h3>
-    <p class="card-text">Posts CRUD and the Rich Text Editor will be implemented in Week 3.</p>
-  </div>
-{% endif %}
 {% endblock %}
