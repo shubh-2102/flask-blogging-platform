@@ -56,10 +56,12 @@ def logout():
 @auth_bp.route('/profile/<username>')
 def profile(username):
     user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
     posts = user.posts.filter_by(published=True).order_by(
         db.text('created_at DESC')
-    ).all()
-    return render_template('auth/profile.html', user=user, posts=posts, title=f'{user.username}\'s Profile')
+    ).paginate(page=page, per_page=6, error_out=False)
+    total_posts = user.posts.filter_by(published=True).count()
+    return render_template('auth/profile.html', user=user, posts=posts, total_posts=total_posts, title=f'{user.username}\'s Profile')
 
 
 @auth_bp.route('/edit-profile', methods=['GET', 'POST'])

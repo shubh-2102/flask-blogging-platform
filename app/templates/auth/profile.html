@@ -25,16 +25,19 @@
 
       <div class="profile-meta">
         <span class="profile-meta-item">
-          <strong>{{ posts|length }}</strong> article{{ 's' if posts|length != 1 }}
+          <strong>{{ total_posts }}</strong> published article{{ 's' if total_posts != 1 }}
         </span>
         <span class="profile-meta-divider">·</span>
         <span class="profile-meta-item">
-          Joined {{ user.created_at.strftime('%B %Y') }}
+          Member since {{ user.created_at.strftime('%B %Y') }}
         </span>
       </div>
 
       {% if current_user.is_authenticated and current_user.id == user.id %}
-        <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline" style="margin-top: 1rem;">Edit Profile</a>
+        <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline">✏️ Edit Profile</a>
+          <a href="{{ url_for('posts.create_post') }}" class="btn btn-primary">➕ Write New Post</a>
+        </div>
       {% endif %}
     </div>
   </div>
@@ -42,29 +45,56 @@
   <!-- Posts by this author -->
   <div style="margin-top: 2rem;">
     <div class="section-header">
-      <h2 class="section-title">Published Articles</h2>
+      <div>
+        <h2 class="section-title">Articles by {{ user.username }}</h2>
+        <p class="card-text">{{ total_posts }} publication{{ 's' if total_posts != 1 }} total</p>
+      </div>
     </div>
 
-    {% if posts %}
+    {% if posts.items %}
       <div class="grid-cols-3">
-        {% for post in posts %}
-          <article class="card">
+        {% for post in posts.items %}
+          <article class="card post-card">
             {% if post.category %}
-              <span class="card-tag">{{ post.category.name }}</span>
+              <a href="{{ url_for('posts.list_posts', category=post.category.slug) }}" class="card-tag">{{ post.category.name }}</a>
             {% endif %}
             <h3 class="card-title">
               <a href="{{ url_for('posts.view_post', slug=post.slug) }}">{{ post.title }}</a>
             </h3>
             <p class="card-text">{{ post.summary or (post.content | striptags)[:130] }}...</p>
-            <time style="font-size: 0.82rem; color: var(--text-muted);">{{ post.created_at.strftime('%b %d, %Y') }}</time>
+            <div class="post-card-footer">
+              <time style="font-size: 0.82rem; color: var(--text-muted);">{{ post.created_at.strftime('%b %d, %Y') }}</time>
+              <a href="{{ url_for('posts.view_post', slug=post.slug) }}" style="font-size: 0.85rem; font-weight: 600; color: var(--primary);">Read →</a>
+            </div>
           </article>
         {% endfor %}
       </div>
+
+      <!-- Pagination for Profile -->
+      {% if posts.pages > 1 %}
+      <div class="pagination">
+        {% if posts.has_prev %}
+          <a href="{{ url_for('auth.profile', username=user.username, page=posts.prev_num) }}" class="page-btn">← Prev</a>
+        {% endif %}
+        {% for p in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if p %}
+            <a href="{{ url_for('auth.profile', username=user.username, page=p) }}"
+               class="page-btn {{ 'page-btn-active' if p == posts.page }}">{{ p }}</a>
+          {% else %}
+            <span class="page-ellipsis">…</span>
+          {% endif %}
+        {% endfor %}
+        {% if posts.has_next %}
+          <a href="{{ url_for('auth.profile', username=user.username, page=posts.next_num) }}" class="page-btn">Next →</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
     {% else %}
       <div class="card" style="text-align:center; padding: 2.5rem;">
         <p class="card-text">No published articles yet.</p>
         {% if current_user.is_authenticated and current_user.id == user.id %}
-          <a href="#" class="btn btn-primary" style="margin-top: 0.75rem;">Write Your First Post</a>
+          <a href="{{ url_for('posts.create_post') }}" class="btn btn-primary" style="margin-top: 0.75rem;">Write Your First Post</a>
         {% endif %}
       </div>
     {% endif %}

@@ -5,63 +5,132 @@
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-card">
-  <span class="hero-pill">Week 1 Milestone Completed</span>
-  <h1 class="hero-title">Welcome to the Flask Blogging Platform</h1>
+  <span class="hero-pill">✨ Modern Flask Blogging Platform</span>
+  <h1 class="hero-title">Discover Stories, Thinking, and Expertise</h1>
   <p class="hero-subtitle">
-    A robust, production-ready web application built using Python, Flask Blueprints, SQLAlchemy ORM, and modern responsive design.
+    Explore articles written by our community on technology, programming, design, and software engineering.
   </p>
   <div class="hero-actions">
-    <a href="{{ url_for('posts.list_posts') }}" class="btn btn-light">Browse Articles</a>
-    <a href="{{ url_for('main.about') }}" class="btn btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.4);">Architecture & Details</a>
+    <a href="{{ url_for('posts.list_posts') }}" class="btn btn-light">Browse All Articles</a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('posts.create_post') }}" class="btn btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.6);">Write a Story</a>
+    {% else %}
+      <a href="{{ url_for('auth.register') }}" class="btn btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.6);">Join Community</a>
+    {% endif %}
   </div>
 </section>
 
-<!-- Week 1 Status Overview -->
-<div class="status-box">
-  <div class="section-header">
-    <h2 class="section-title">🚀 Week 1: Environment & Basic Structure</h2>
-    <span class="badge-status badge-success">✓ Verified & Ready</span>
-  </div>
-  <p class="card-text">
-    The Week 1 foundation establishes the Application Factory pattern, modular Blueprints, database schemas with SQLAlchemy, and Flask-Migrate integration.
-  </p>
-  <ul class="status-list">
-    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Flask Environment:</strong> Python 3.14 virtual environment with dependencies managed via <code>requirements.txt</code>.</li>
-    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Application Factory:</strong> Configured in <code>app/__init__.py</code> with environment-based configuration classes.</li>
-    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Blueprints:</strong> Modular routes registered for <code>main</code>, <code>auth</code>, and <code>posts</code>.</li>
-    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Database Models:</strong> ORM schemas created for <code>User</code>, <code>Post</code>, <code>Category</code>, <code>Tag</code>, and <code>Comment</code>.</li>
-    <li class="status-item"><span class="status-icon-check">✔</span> <strong>Database Migrations:</strong> Managed with <code>Flask-Migrate</code> and <code>Alembic</code>.</li>
-  </ul>
-</div>
+<!-- Main Feed Layout -->
+<div class="list-layout">
+  <!-- Posts Feed -->
+  <div class="posts-main">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Latest Articles</h2>
+        <p class="card-text">Fresh publications from our community of writers.</p>
+      </div>
+      <a href="{{ url_for('posts.list_posts') }}" class="card-tag" style="font-size:0.85rem;">View All →</a>
+    </div>
 
-<!-- Key Architecture Highlights -->
-<div class="section-header">
-  <h2 class="section-title">Core Architecture Components</h2>
-</div>
+    {% if posts.items %}
+      <div class="grid-cols-2">
+        {% for post in posts.items %}
+          <article class="card post-card">
+            {% if post.category %}
+              <a href="{{ url_for('posts.list_posts', category=post.category.slug) }}" class="card-tag">{{ post.category.name }}</a>
+            {% endif %}
+            <h3 class="card-title">
+              <a href="{{ url_for('posts.view_post', slug=post.slug) }}">{{ post.title }}</a>
+            </h3>
+            <p class="card-text">
+              {{ post.summary or (post.content | striptags)[:140] }}{% if not post.summary %}...{% endif %}
+            </p>
+            <div class="post-card-footer">
+              <a href="{{ url_for('auth.profile', username=post.author.username) }}" class="post-author">
+                <div class="post-author-avatar">{{ post.author.username[0].upper() }}</div>
+                <span>{{ post.author.username }}</span>
+              </a>
+              <time>{{ post.created_at.strftime('%b %d, %Y') }}</time>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
 
-<div class="grid-cols-3">
-  <div class="card">
-    <span class="card-tag">Architecture</span>
-    <h3 class="card-title">Blueprints Pattern</h3>
-    <p class="card-text">
-      Decoupled modules for authentication, blog management, and general application routing for clean scalability.
-    </p>
+      <!-- Pagination Controls -->
+      {% if posts.pages > 1 %}
+      <div class="pagination">
+        {% if posts.has_prev %}
+          <a href="{{ url_for('main.index', page=posts.prev_num) }}" class="page-btn">← Prev</a>
+        {% endif %}
+        {% for p in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if p %}
+            <a href="{{ url_for('main.index', page=p) }}"
+               class="page-btn {{ 'page-btn-active' if p == posts.page }}">{{ p }}</a>
+          {% else %}
+            <span class="page-ellipsis">…</span>
+          {% endif %}
+        {% endfor %}
+        {% if posts.has_next %}
+          <a href="{{ url_for('main.index', page=posts.next_num) }}" class="page-btn">Next →</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    {% else %}
+      <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+        <h3 style="margin-bottom: 0.5rem; color: var(--dark);">No Posts Yet</h3>
+        <p class="card-text" style="margin-bottom: 1.5rem;">Be the first one to share an insightful article with the world!</p>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('posts.create_post') }}" class="btn btn-primary">Create Your First Post</a>
+        {% else %}
+          <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Sign Up to Write</a>
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 
-  <div class="card">
-    <span class="card-tag">Database</span>
-    <h3 class="card-title">SQLAlchemy ORM</h3>
-    <p class="card-text">
-      Fully relational data model with Many-to-Many post tagging, One-to-Many authorship, and cascade comment deletions.
-    </p>
-  </div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <!-- Categories Widget -->
+    <div class="sidebar-section">
+      <h3 class="sidebar-title">Explore Categories</h3>
+      <ul class="sidebar-list">
+        <li>
+          <a href="{{ url_for('posts.list_posts') }}" class="sidebar-link">
+            All Categories
+          </a>
+        </li>
+        {% for cat in categories %}
+        <li>
+          <a href="{{ url_for('posts.list_posts', category=cat.slug) }}" class="sidebar-link">
+            {{ cat.name }}
+            <span class="sidebar-count">{{ cat.posts.filter_by(published=True).count() }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
 
-  <div class="card">
-    <span class="card-tag">Templates</span>
-    <h3 class="card-title">Jinja2 Layouts</h3>
-    <p class="card-text">
-      Component-based template hierarchy with extensible blocks, flash notification handling, and responsive CSS.
-    </p>
-  </div>
+    <!-- Tags Widget -->
+    {% if tags %}
+    <div class="sidebar-section">
+      <h3 class="sidebar-title">Popular Tags</h3>
+      <div class="tag-cloud">
+        {% for tag in tags %}
+          <a href="{{ url_for('posts.list_posts', tag=tag.slug) }}" class="tag-pill">#{{ tag.name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- About Platform Widget -->
+    <div class="sidebar-section">
+      <h3 class="sidebar-title">About the Platform</h3>
+      <p class="form-hint" style="line-height: 1.5; margin-bottom: 1rem;">
+        Built with Flask 2.3, SQLAlchemy ORM, modular Blueprints, and Jinja2 templates for the DIY Internship.
+      </p>
+      <a href="{{ url_for('main.about') }}" class="btn btn-outline btn-full">Learn More</a>
+    </div>
+  </aside>
 </div>
 {% endblock %}

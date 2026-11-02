@@ -22,11 +22,12 @@
 
       <nav>
         <ul class="nav-links">
-          <li><a href="{{ url_for('main.index') }}" class="nav-link">Home</a></li>
-          <li><a href="{{ url_for('posts.list_posts') }}" class="nav-link">Articles</a></li>
-          <li><a href="{{ url_for('main.about') }}" class="nav-link">About</a></li>
+          <li><a href="{{ url_for('main.index') }}" class="nav-link {{ 'active' if request.endpoint == 'main.index' }}">Home</a></li>
+          <li><a href="{{ url_for('posts.list_posts') }}" class="nav-link {{ 'active' if request.endpoint == 'posts.list_posts' }}">Articles</a></li>
+          <li><a href="{{ url_for('main.about') }}" class="nav-link {{ 'active' if request.endpoint == 'main.about' }}">About</a></li>
 
           {% if current_user.is_authenticated %}
+            <li><a href="{{ url_for('posts.create_post') }}" class="btn btn-primary" style="padding: 0.45rem 0.9rem; font-size: 0.88rem;">✏️ New Post</a></li>
             <li class="nav-dropdown">
               <button class="nav-user-btn" onclick="this.parentElement.classList.toggle('open')">
                 <div class="nav-avatar">{{ current_user.username[0].upper() }}</div>

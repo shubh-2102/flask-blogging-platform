@@ -159,6 +159,33 @@ class PostCRUDTestCase(unittest.TestCase):
         resp = self.client.post(f'/posts/{post.slug}/delete', follow_redirects=True)
         self.assertEqual(resp.status_code, 403)
 
+    # --- Week 4 Frontend & Pagination Tests ---
+    def test_home_page_pagination(self):
+        for i in range(8):
+            p = self._create_post(f'Home Post {i}')
+            db.session.add(p)
+        db.session.commit()
+
+        resp = self.client.get('/?page=1')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'Latest Articles', resp.data)
+
+        resp2 = self.client.get('/?page=2')
+        self.assertEqual(resp2.status_code, 200)
+
+    def test_profile_posts_pagination(self):
+        for i in range(8):
+            p = self._create_post(f'Profile Post {i}')
+            db.session.add(p)
+        db.session.commit()
+
+        resp = self.client.get(f'/auth/profile/{self.user.username}?page=1')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'Articles by', resp.data)
+
+        resp2 = self.client.get(f'/auth/profile/{self.user.username}?page=2')
+        self.assertEqual(resp2.status_code, 200)
+
 
 if __name__ == '__main__':
     unittest.main()
