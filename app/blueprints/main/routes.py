@@ -14,3 +14,7 @@ def index():
 @main_bp.route('/about')
 def about():
     return render_template('main/about.html')
+
+@main_bp.route('/health')
+def health():
+    return {'status': 'healthy', 'service': 'flask-blogging-platform'}, 200
