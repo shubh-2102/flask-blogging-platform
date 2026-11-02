@@ -28,16 +28,28 @@ def _populate_category_choices(form):
 def list_posts():
     category_slug = request.args.get('category')
     tag_slug = request.args.get('tag')
+    q = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
 
     query = Post.query.filter_by(published=True)
 
+    # Week 6: Search by title, summary, or content
+    if q:
+        search_pattern = f'%{q}%'
+        query = query.filter(
+            (Post.title.ilike(search_pattern)) |
+            (Post.summary.ilike(search_pattern)) |
+            (Post.content.ilike(search_pattern))
+        )
+
+    # Week 6: Filter by category
     if category_slug:
         cat = Category.query.filter_by(slug=category_slug).first_or_404()
         query = query.filter_by(category_id=cat.id)
     else:
         cat = None
 
+    # Week 6: Filter by tag
     if tag_slug:
         tag = Tag.query.filter_by(slug=tag_slug).first_or_404()
         query = query.filter(Post.tags.contains(tag))
@@ -51,7 +63,7 @@ def list_posts():
     return render_template(
         'posts/list.html',
         posts=posts, categories=categories, tags=tags,
-        active_category=cat, active_tag=tag
+        active_category=cat, active_tag=tag, q=q
     )
 
 

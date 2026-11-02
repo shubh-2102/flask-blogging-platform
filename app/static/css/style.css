@@ -1147,4 +1147,117 @@ textarea.form-input {
   background: #fee2e2;
 }
 
+/* =====================
+   Search & Filter Styles (Week 6)
+   ===================== */
+.nav-search-form {
+  display: flex;
+  align-items: center;
+  background: var(--bg-page);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.2rem 0.5rem;
+  transition: all 0.2s;
+  max-width: 260px;
+}
+
+.nav-search-form:focus-within {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.nav-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: var(--text-main);
+  width: 100%;
+}
+
+.nav-search-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.nav-search-btn:hover {
+  color: var(--primary);
+}
+
+.search-box-main {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.search-box-input {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-box-input:focus {
+  border-color: var(--primary);
+}
+
+.filter-badge-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: #f1f5f9;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 0.2rem 0.65rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.filter-clear-link {
+  color: #ef4444;
+  margin-left: auto;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.filter-clear-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .nav-search-form { display: none; }
+}
+
+
 

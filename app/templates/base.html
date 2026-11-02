@@ -20,6 +20,12 @@
         <span class="brand-badge">DIY Internship</span>
       </a>
 
+      <!-- Search Bar (Week 6) -->
+      <form action="{{ url_for('posts.list_posts') }}" method="GET" class="nav-search-form">
+        <input type="text" name="q" placeholder="Search articles..." value="{{ request.args.get('q', '') }}" class="nav-search-input">
+        <button type="submit" class="nav-search-btn" title="Search">🔍</button>
+      </form>
+
       <nav>
         <ul class="nav-links">
           <li><a href="{{ url_for('main.index') }}" class="nav-link {{ 'active' if request.endpoint == 'main.index' }}">Home</a></li>
