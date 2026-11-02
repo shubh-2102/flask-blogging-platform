@@ -66,6 +66,70 @@
       </form>
     </div>
     {% endif %}
+
+    <!-- Comments Section (Week 5) -->
+    <section id="comments" class="comments-section">
+      <h2 class="comments-title">
+        💬 Comments ({{ comments|length }})
+      </h2>
+
+      {% if current_user.is_authenticated %}
+        <div class="comment-form-card">
+          <form method="POST" action="{{ url_for('posts.add_comment', slug=post.slug) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+              <label for="body" style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; display: block;">Join the discussion as <strong>{{ current_user.username }}</strong></label>
+              <textarea id="body" name="body" class="form-control" rows="3" placeholder="Share your thoughts, ask questions, or provide feedback..." required minlength="2" maxlength="1000"></textarea>
+            </div>
+            <div style="display:flex; justify-content: flex-end; margin-top: 0.75rem;">
+              <button type="submit" class="btn btn-primary">Post Comment</button>
+            </div>
+          </form>
+        </div>
+      {% else %}
+        <div class="comment-login-card">
+          <p style="margin-bottom: 0.75rem; font-weight: 500;">Interested in participating in this discussion?</p>
+          <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary" style="margin-right: 0.5rem;">Sign In</a>
+          <a href="{{ url_for('auth.register') }}" class="btn btn-outline">Create an Account</a>
+        </div>
+      {% endif %}
+
+      {% if comments %}
+        <div class="comments-list">
+          {% for comment in comments %}
+            <div class="comment-card" id="comment-{{ comment.id }}">
+              <div class="comment-card-header">
+                <div class="comment-card-user">
+                  <div class="comment-card-avatar">{{ comment.author.username[0].upper() }}</div>
+                  <div>
+                    <a href="{{ url_for('auth.profile', username=comment.author.username) }}" class="comment-card-author">
+                      {{ comment.author.username }}
+                    </a>
+                    {% if comment.author.id == post.author.id %}
+                      <span class="card-tag" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; margin-left: 0.3rem;">Author</span>
+                    {% endif %}
+                    <div class="comment-card-date">{{ comment.created_at.strftime('%b %d, %Y at %H:%M') }}</div>
+                  </div>
+                </div>
+
+                {% if current_user.is_authenticated and (current_user.id == comment.user_id or current_user.id == post.author.id) %}
+                  <form method="POST" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}"
+                        onsubmit="return confirm('Delete this comment?')" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="comment-delete-btn" title="Delete comment">🗑️ Delete</button>
+                  </form>
+                {% endif %}
+              </div>
+              <div class="comment-card-body">{{ comment.body }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem 0;">
+          No comments yet. Be the first to share your thoughts!
+        </p>
+      {% endif %}
+    </section>
   </article>
 
   <!-- Sidebar -->

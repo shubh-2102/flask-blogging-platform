@@ -45,3 +45,11 @@ class PostForm(FlaskForm):
             existing = Post.query.filter_by(slug=slug).first()
             if existing and slug != self.original_slug:
                 raise ValidationError('This slug is already in use. Try a different title or slug.')
+
+
+class CommentForm(FlaskForm):
+    body = TextAreaField('Leave a Comment', validators=[
+        DataRequired(message='Comment cannot be empty.'),
+        Length(min=2, max=1000, message='Comment must be between 2 and 1000 characters.')
+    ])
+    submit = SubmitField('Post Comment')

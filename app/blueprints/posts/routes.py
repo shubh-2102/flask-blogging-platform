@@ -1,9 +1,10 @@
 from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 from app.blueprints.posts import posts_bp
-from app.blueprints.posts.forms import PostForm, slugify
+from app.blueprints.posts.forms import PostForm, CommentForm, slugify
 from app.extensions import db
 from app.models.post import Post, Category, Tag
+from app.models.comment import Comment
 
 
 def _get_or_create_tag(name: str) -> Tag:
@@ -57,7 +58,44 @@ def list_posts():
 @posts_bp.route('/<slug>')
 def view_post(slug):
     post = Post.query.filter_by(slug=slug, published=True).first_or_404()
-    return render_template('posts/detail.html', post=post)
+    comments = post.comments.order_by(Comment.created_at.desc()).all()
+    comment_form = CommentForm()
+    return render_template('posts/detail.html', post=post, comments=comments, comment_form=comment_form)
+
+
+@posts_bp.route('/<slug>/comments', methods=['POST'])
+@login_required
+def add_comment(slug):
+    post = Post.query.filter_by(slug=slug, published=True).first_or_404()
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(
+            body=form.body.data.strip(),
+            author=current_user,
+            post=post
+        )
+        db.session.add(comment)
+        db.session.commit()
+        flash('Your comment has been posted!', 'success')
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(error, 'danger')
+    return redirect(url_for('posts.view_post', slug=post.slug) + '#comments')
+
+
+@posts_bp.route('/comments/<int:comment_id>/delete', methods=['POST'])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    # Allow comment author OR post author to delete
+    if comment.user_id != current_user.id and comment.post.user_id != current_user.id:
+        abort(403)
+    post_slug = comment.post.slug
+    db.session.delete(comment)
+    db.session.commit()
+    flash('Comment removed successfully.', 'info')
+    return redirect(url_for('posts.view_post', slug=post_slug) + '#comments')
 
 
 @posts_bp.route('/create', methods=['GET', 'POST'])
